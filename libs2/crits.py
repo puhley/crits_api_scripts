@@ -12,7 +12,7 @@ class crits:
   This class manages the interactions with the CRITs server via the API.
   """
 
-  def __init__(self,username,api_key,crits_url="",verify=True,debug=False):
+  def __init__(self,username,api_key,crits_url,verify=True,debug=False):
     """
     The initialization class which stores the CRITs connection info.
 
@@ -30,11 +30,9 @@ class crits:
 
     self.username = username
     self.api_key = api_key
+    self.CRITs_URL = crits_url
     self.verify = verify
     self.debug = debug
-
-    if crits_url != "" and crits_url != None:
-       self.CRITs_URL = crits_url
 
 
 
