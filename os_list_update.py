@@ -373,21 +373,21 @@ def process_file(crits,file,campaign,source,indicator,confidence,debug):
 
 
 
-def find_campaign_source(result, args):
+def check_campaign_list(result, args):
   """
-  This is used by the delete functionality to determine whether to delete an entire record.
-  If there is only one entry in result, it returns two blank strings so that the entire record  will be deleted.
-  If there is more than one entry, it will verify the campaign and source exist and then return those values.
+  This is used by the delete whether the campaign exists.
+  If a campaign was requested that doesn't exist, then it exits with an error.
+  Otherwise, the campaign is returned.
 
   :param result: The returned value from a CRITs find query.
   :type result: arr
   :param args: The args array from the command line
   :type args: object
-  :returns: str,str
+  :returns: str
   """
   del_campaign = ""
 
-  if len(result[0]['campaign']) >= 1 and args.campaign:
+  if len(result[0]['campaign']) > 1 and args.campaign:
     for entry in result[0]['campaign']:
       if entry['name'] == args.campaign:
         del_campaign = args.campaign
@@ -396,8 +396,24 @@ def find_campaign_source(result, args):
       print "Error: The campaign " + args.campaign + " is not associated with that IP."
       exit(1)
 
+  return (del_campaign)
 
-  #There must always be one source associated with a record
+
+
+def check_source_list(result, args):
+  """
+  This is used by the delete functionality to determine whether to delete a source.
+  If there is only one source left, it returns a blank string. 
+  If more than one exists, then it returns the source.
+  If the source does not exist, it exits with an error.
+
+  :param result: The returned value from a CRITs find query.
+  :type result: arr
+  :param args: The args array from the command line
+  :type args: object
+  :returns: str
+  """
+
   del_source = ""
   if len(result[0]['source']) > 1 and args.source:
     for entry in result[0]['source']:
@@ -408,7 +424,8 @@ def find_campaign_source(result, args):
       print "Error: The source " + args.source + " is not associated with that IP."
       exit(1)
 
-  return (del_campaign, del_source)
+  return (del_source)
+
 
 
 
@@ -789,12 +806,17 @@ if __name__ == '__main__':
       print "Error: Could not get _id for " + args.ip
       exit(1)
 
-    del_campaign,del_source = find_campaign_source(ip_result,args)
+    del_campaign = check_campaign_list(ip_result,args)
+    del_source = check_source_list(ip_result,args)
 
     if debug:
       print "Deleting IP ID: " + ip_id + " campaign: " + del_campaign + " source: " + del_source
 
     if del_campaign == "" and del_source == "":
+      result = CRITs.delete_ip(ip_id)
+
+    elif args.source and del_source == "":
+      #There was only one source left
       result = CRITs.delete_ip(ip_id)
 
     else:
@@ -836,12 +858,17 @@ if __name__ == '__main__':
       print "Error: Could not get _id for " + args.delete_domain_info
       exit(1)
 
-    del_campaign,del_source = find_campaign_source(domain_result,args)
+    del_campaign = check_campaign_list(domain_result,args)
+    del_source = check_source_list(domain_result,args)
 
     if debug:
       print "Deleting Domain ID: " + d_id + " campaign: " + del_campaign + " source: " + del_source
 
     if del_campaign == "" and del_source == "":
+      result = CRITs.delete_domain(d_id)
+
+    #For the case where one source existed
+    elif del_source == "" and args.source:
       result = CRITs.delete_domain(d_id)
 
     else:
