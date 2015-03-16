@@ -39,7 +39,7 @@ def get_config_setting(Config,section,key,type='str'):
   """
   This is a utility function for reading variables from a config file.
 
-  :param Config: The ConfigParser varialbe for the file containing the variable.
+  :param Config: The ConfigParser variable for the file containing the variable.
   :type Config: ConfigParser
   :param section: The section of the config file that contains the variable
   :type section: str
@@ -294,6 +294,7 @@ def get_section(f, first_delim, second_delim):
 
   while line.find(first_delim) == -1:
     line = f.readline()
+    if not line: return(None)
 
   line = f.readline()
   if second_delim != "":
@@ -757,6 +758,10 @@ if __name__ == '__main__':
       zipdata.write(f.read())
       zipdata.seek(0)
       g = gzip.GzipFile(fileobj=zipdata, mode='rb')
+
+    if g is None: 
+      print "Error: Could not process list" 
+      exit(0) 
 
     os_campaign_prefix = get_config_setting(OSConfig,'General', 'open_source_campaign_prefix')
     os_add_campaign = get_config_setting(OSConfig,'General', 'add_campaign_if_missing','boolean')
