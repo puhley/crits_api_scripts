@@ -91,7 +91,7 @@ class crits:
     if id != None and id != "":
       return j
     else: 
-      if j['meta']['total_count'] == 1:
+      if j['meta']['total_count'] >= 1:
         return j['objects']
 
     return None
