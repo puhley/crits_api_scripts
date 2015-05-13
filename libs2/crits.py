@@ -60,7 +60,7 @@ class crits:
 
     url = url + '?username=' + self.username + '&api_key=' + self.api_key 
 
-    if id == None or id == "":
+    if name != None or name != "":
       url =  url + '&' + urllib.urlencode({'c-name':name})
 
     if limit != None and limit != "":
